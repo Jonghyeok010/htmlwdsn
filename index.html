@@ -24,7 +24,6 @@
             width: 350px;
             padding: 30px;
             text-align: center;
-            animation: slideIn 1s ease-out;
         }
 
         .title {
@@ -32,7 +31,6 @@
             font-weight: bold;
             color: #2f3c48;
             margin-bottom: 20px;
-            animation: fadeIn 1s ease-out;
         }
 
         .question {
@@ -40,7 +38,6 @@
             color: #4d4d4d;
             margin-bottom: 15px;
             font-weight: bold;
-            animation: fadeIn 1.5s ease-out;
         }
 
         .score {
@@ -58,7 +55,6 @@
             border-radius: 8px;
             border: 2px solid #ccc;
             transition: border-color 0.3s ease;
-            animation: fadeIn 2s ease-out;
         }
 
         input:focus {
@@ -74,9 +70,7 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
             width: 100%;
-            animation: fadeIn 2.5s ease-out;
         }
 
         button:hover {
@@ -91,57 +85,11 @@
         .correct {
             color: #4CAF50;
             font-weight: bold;
-            animation: bounceIn 1s ease;
         }
 
         .incorrect {
             color: #F44336;
             font-weight: bold;
-            animation: bounceIn 1s ease;
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            0% { transform: translateY(50px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        /* 모바일 최적화 */
-        @media (max-width: 500px) {
-            .container {
-                width: 90%;
-                padding: 20px;
-            }
-
-            .title {
-                font-size: 26px;
-            }
-
-            .question {
-                font-size: 18px;
-            }
-
-            .score {
-                font-size: 20px;
-            }
-
-            input {
-                font-size: 14px;
-            }
-
-            button {
-                font-size: 14px;
-            }
         }
     </style>
 </head>
@@ -149,164 +97,49 @@
 
     <div class="container">
         <div class="title">전세계 수도 맞추기 게임</div>
-        <div class="question" id="question">문제가 나옵니다...</div>
-        <input type="text" id="answer" placeholder="수도를 입력하세요">
-        <button onclick="checkAnswer()">제출</button>
-        <div class="result" id="result"></div>
-        <div class="score" id="score">점수: 0</div>
+        <input type="text" id="devCode" placeholder="개발자 코드 입력">
+        <button onclick="startGame()">게임 시작</button>
+        <div class="question" id="question" style="display:none;">문제가 나옵니다...</div>
+        <input type="text" id="answer" placeholder="수도를 입력하세요" style="display:none;">
+        <button id="submit-button" onclick="checkAnswer()" style="display:none;">제출</button>
+        <div class="result" id="result" style="display:none;"></div>
+        <div class="score" id="score" style="display:none;">점수: 0</div>
     </div>
 
     <script>
-        // 195개 나라와 수도 딕셔너리
         const countriesAndCapitals = {
-                "한국": "서울",
-    "미국": "워싱턴 D.C.",
-    "캐나다": "오타와",
-    "독일": "베를린",
-    "프랑스": "파리",
-    "일본": "도쿄",
-    "중국": "베이징",
-    "인도": "뉴델리",
-    "브라질": "브라질리아",
-    "호주": "캔버라",
-    "러시아": "모스크바",
-    "이탈리아": "로마",
-    "영국": "런던",
-    "스페인": "마드리드",
-    "이집트": "카이로",
-    "멕시코": "멕시코시티",
-    "아르헨티나": "부에노스아이레스",
-    "이란": "테헤란",
-    "터키": "앙카라",
-    "남아프리카공화국": "프리토리아",
-    "네덜란드": "암스테르담",
-    "벨기에": "브뤼셀",
-    "스웨덴": "스톡홀름",
-    "스위스": "베른",
-    "그리스": "아테네",
-    "덴마크": "코펜하겐",
-    "폴란드": "바르샤바",
-    "포르투갈": "리스본",
-    "체코": "프라하",
-    "오스트리아": "비엔나",
-    "핀란드": "헬싱키",
-    "노르웨이": "오슬로",
-    "헝가리": "부다페스트",
-    "루마니아": "부쿠레슈티",
-    "불가리아": "소피아",
-    "슬로바키아": "브라티슬라바",
-    "아이슬란드": "레이캬비크",
-    "크로아티아": "자그레브",
-    "슬로베니아": "류블랴나",
-    "몰타": "발레타",
-    "모나코": "모나코",
-    "산마리노": "산마리노",
-    "베네수엘라": "카라카스",
-    "콜롬비아": "보고타",
-    "칠레": "산티아고",
-    "페루": "리마",
-    "파라과이": "아순시온",
-    "우루과이": "몬테비데오",
-    "기니": "코나크리",
-    "세네갈": "다카르",
-    "카메룬": "야운데",
-    "나이지리아": "아부자",
-    "이집트": "카이로",
-    "알제리": "알제",
-    "모로코": "라바트",
-    "리비아": "트리폴리",
-    "수단": "하르툼",
-    "남수단": "주바",
-    "에티오피아": "아디스아바바",
-    "케냐": "나이로비",
-    "우간다": "캄팔라",
-    "탄자니아": "도도마",
-    "르완다": "키갈리",
-    "부룬디": "기테가",
-    "콩고": "킨샤사",
-    "자이르": "킨샤사",
-    "모잠비크": "마푸토",
-    "앙골라": "루안다",
-    "짐바브웨": "하라레",
-    "보츠와나": "가보로네",
-    "나미비아": "빈트후크",
-    "남아프리카공화국": "프리토리아",
-    "스와질란드": "음바바네",
-    "레소토": "마세루",
-    "모리셔스": "포트루이스",
-    "세이셸": "빅토리아",
-    "컴로스": "모로니",
-    "미크로네시아": "팔리키르",
-    "파푸아뉴기니": "포트모르즈비",
-    "필리핀": "마닐라",
-    "말레이시아": "쿠알라룸푸르",
-    "싱가포르": "싱가포르",
-    "인도네시아": "자카르타",
-    "동티모르": "딘하르",
-    "브루나이": "반다세리벡완",
-    "태국": "방콕",
-    "베트남": "하노이",
-    "라오스": "비엔티안",
-    "캄보디아": "프놈펜",
-    "미얀마": "네피도",
-    "북한": "평양",
-    "네팔": "카트만두",
-    "부탄": "팀부",
-    "몰디브": "말레",
-    "스리랑카": "콜롬보",
-    "인도": "뉴델리",
-    "한국": "서울",
-    "일본": "도쿄",
-    "이스라엘": "텔아비브",
-    "팔레스타인": "라말라",
-    "아랍에미리트": "아부다비",
-    "카타르": "도하",
-    "바레인": "마나마",
-    "오만": "무스카트",
-    "쿠웨이트": "쿠웨이트시티",
-    "사우디아라비아": "리야드",
-    "요르단": "암만",
-    "이라크": "바그다드",
-    "이란": "테헤란",
-    "레바논": "베이루트",
-    "시리아": "다마스쿠스",
-    "터키": "앙카라",
-    "조지아": "트빌리시",
-    "아르메니아": "예레반",
-    "알바니아": "티라나",
-    "세르비아": "벨그라드",
-    "크로아티아": "자그레브",
-    "보스니아헤르체고비나": "사라예보",
-    "몬테네그로": "포드고리차",
-    "마케도니아": "스코페",
-    "코소보": "프리슈티나",
-    "슬로베니아": "류블랴나",
-    "몰도바": "키시너우",
-    "우크라이나": "키예프",
-    "벨라루스": "민스크",
-    "러시아": "모스크바",
-    "폴란드": "바르샤바",
-    "체코": "프라하",
-    "헝가리": "부다페스트",
-    "리투아니아": "빌뉴스",
-    "라트비아": "리가",
-    "에스토니아": "탈린",
-    "핀란드": "헬싱키",
-    "스웨덴": "스톡홀름",
-    "덴마크": "코펜하겐",
-    "노르웨이": "오슬로",
-    "아이슬란드": "레이캬비크",
-    "그리스": "아테네",
-    "터키": "앙카라",
-    "아르메니아": "예레반",
-    "조지아": "트빌리시"
+            "한국": "서울",
+            "미국": "워싱턴 D.C.",
+            "캐나다": "오타와",
+            "독일": "베를린",
+            "프랑스": "파리",
+            "일본": "도쿄",
+            "중국": "베이징",
+            "인도": "뉴델리",
+            "브라질": "브라질리아",
+            "호주": "캔버라",
+            // 추가 국가와 수도를 여기에 입력
         };
 
         let score = 0;
         let currentCountry = '';
         let correctAnswer = '';
 
-        // 랜덤으로 나라와 수도 선택
+        function startGame() {
+            const devCode = document.getElementById('devCode').value.trim();
+            if (devCode === "종혁이") {
+                document.getElementById('devCode').style.display = 'none';
+                document.querySelector('button').style.display = 'none';
+                document.getElementById('question').style.display = 'block';
+                document.getElementById('answer').style.display = 'block';
+                document.getElementById('submit-button').style.display = 'block';
+                document.getElementById('score').style.display = 'block';
+                nextQuestion(); // 게임 시작
+            } else {
+                alert("잘못된 개발자 코드입니다.");
+            }
+        }
+
         function nextQuestion() {
             const countries = Object.keys(countriesAndCapitals);
             currentCountry = countries[Math.floor(Math.random() * countries.length)];
@@ -316,7 +149,6 @@
             document.getElementById("result").textContent = '';
         }
 
-        // 답안 체크 함수
         function checkAnswer() {
             const userAnswer = document.getElementById("answer").value.trim();
             const resultElement = document.getElementById("result");
@@ -330,15 +162,10 @@
                 resultElement.className = "result incorrect";
             }
 
-            // 점수 업데이트
             document.getElementById("score").textContent = `점수: ${score}`;
-            
-            // 2초 후에 다음 문제로 넘어감
             setTimeout(nextQuestion, 2000);
         }
 
-        // 게임 시작
-        nextQuestion();
     </script>
 
 </body>
